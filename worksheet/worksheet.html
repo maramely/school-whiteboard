@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=block">
+<style>
+  /* Учебный лист 1600×1000. Координаты квадратов совпадают с TF_BOX в public/app.js */
+  :root { --ink:#27205D; --violet:#5854A4; --vbg:#EBEBF4; --sky:#E3F0FA; --line:#D9D8DA; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; background: #fff; overflow: hidden; }
+  body { font-family: "Golos Text", Arial, sans-serif; color: var(--ink); position: relative; }
+  .eyebrow { position:absolute; left:64px; top:52px; font-size:20px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--violet); }
+  h1 { position:absolute; left:64px; top:82px; font-size:56px; font-weight:700; letter-spacing:-.01em; }
+  .tf { position:absolute; right:92px; top:70px; padding:14px 26px; border-radius:999px; background:var(--vbg); font-size:28px; font-weight:700; color:var(--violet); }
+  .text { position:absolute; left:64px; top:200px; width:680px; padding:34px 38px; background:var(--sky); border-radius:24px; font-size:30px; line-height:1.62; }
+  .text .label { font-size:18px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#1D3B57; margin-bottom:10px; }
+  .how { position:absolute; left:64px; top:900px; font-size:22px; color:#5E5A7E; }
+  .how b { color: var(--ink); }
+  .head { position:absolute; left:820px; top:212px; font-size:18px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#5E5A7E; }
+  .head.r { left:1388px; width:120px; text-align:center; }
+  .row { position:absolute; left:820px; width:540px; height:120px; display:flex; align-items:center; gap:22px; font-size:30px; line-height:1.3; }
+  .num { flex:none; width:48px; height:48px; border-radius:50%; background:var(--violet); color:#fff; font-size:24px; font-weight:700; display:grid; place-items:center; }
+  .box { position:absolute; left:1388px; width:120px; height:120px; border:4px solid var(--ink); border-radius:16px; background:#fff; }
+  .sep { position:absolute; left:820px; width:688px; height:2px; background:var(--line); }
+</style></head><body>
+  <div class="eyebrow">English · Reading</div>
+  <h1>Mia’s Saturday</h1>
+  <div class="tf">True or False?</div>
+  <div class="text"><div class="label">Read the text</div>
+    Every Saturday, Mia walks to the park <span id="phrase">with her little brother, Leo</span>. They leave home at nine o’clock. On the way, they buy bread at a small bakery to feed the ducks. Leo loves the swings, but Mia prefers to read under a big oak tree. At twelve o’clock, they go home for lunch.
+  </div>
+  <div class="how">Write <b>T</b> (true) or <b>F</b> (false) in the box with your number.</div>
+  <div class="head">Statements</div><div class="head r">T / F</div>
+  <div class="row" style="top:262px"><span class="num">1</span><span>Mia goes to the park on Sundays.</span></div><div class="box" style="top:262px"></div>
+  <div class="sep" style="top:393px"></div>
+  <div class="row" style="top:404px"><span class="num">2</span><span>Leo is Mia’s brother.</span></div><div class="box" style="top:404px"></div>
+  <div class="sep" style="top:535px"></div>
+  <div class="row" style="top:546px"><span class="num">3</span><span>They buy bread for the ducks.</span></div><div class="box" style="top:546px"></div>
+  <div class="sep" style="top:677px"></div>
+  <div class="row" style="top:688px"><span class="num">4</span><span>Mia likes the swings best.</span></div><div class="box" style="top:688px"></div>
+  <div class="sep" style="top:819px"></div>
+  <div class="row" style="top:830px"><span class="num">5</span><span>They go home for lunch at twelve.</span></div><div class="box" style="top:830px"></div>
+</body></html>

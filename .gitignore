@@ -1,0 +1,17 @@
+# Сборка и артефакты тестов
+dist/
+tools/e2e-out/
+# Внутренние скриншоты проверок (генерируются тестами)
+screenshots/
+# Локальные настройки и инструменты ассистента
+.claude/
+.env
+.env.*
+*.pem
+*.key
+node_modules/
+.DS_Store
+# Не используются приложением
+public/shiba-final.png
+public/animations/shiba-final.png
+public/mascot-placeholder.svg

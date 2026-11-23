@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<style>
+  /* Вертикальный учебный лист 1200×1700. Квадраты: x 960–1110 (150×150), y = 800 + i·170 */
+  :root { --ink:#27205D; --violet:#5854A4; --vbg:#EBEBF4; --sky:#E3F0FA; --line:#D9D8DA; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 1700px; background: #fff; overflow: hidden; }
+  body { font-family: -apple-system, "SF Pro Text", Arial, sans-serif; color: var(--ink); position: relative; }
+  .eyebrow { position:absolute; left:90px; top:90px; font-size:24px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--violet); }
+  h1 { position:absolute; left:90px; top:128px; font-size:72px; font-weight:700; letter-spacing:-.02em; }
+  .tf { position:absolute; right:90px; top:128px; padding:16px 28px; border-radius:999px; background:var(--vbg); font-size:32px; font-weight:700; color:var(--violet); }
+  .text { position:absolute; left:90px; top:270px; width:1020px; padding:36px 44px; background:var(--sky); border-radius:28px; font-size:34px; line-height:1.55; }
+  .label { font-size:20px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#1D3B57; margin-bottom:10px; }
+  .head { position:absolute; left:90px; top:740px; font-size:22px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#5E5A7E; }
+  .head.r { left:960px; width:150px; text-align:center; }
+  .row { position:absolute; left:90px; width:840px; height:150px; display:flex; align-items:center; gap:26px; font-size:36px; line-height:1.3; }
+  .num { flex:none; width:58px; height:58px; border-radius:50%; background:var(--violet); color:#fff; font-size:28px; font-weight:700; display:grid; place-items:center; }
+  .box { position:absolute; left:960px; width:150px; height:150px; border:5px solid var(--ink); border-radius:20px; background:#fff; }
+  .sep { position:absolute; left:90px; width:1020px; height:2px; background:var(--line); }
+  .how { position:absolute; left:90px; top:1650px; font-size:24px; color:#5E5A7E; }
+</style></head><body>
+  <div class="eyebrow">English · Reading</div>
+  <h1>Mia’s Saturday</h1>
+  <div class="tf">True or False?</div>
+  <div class="text"><div class="label">Read the text</div>Every Saturday, Mia walks to the park with her little brother, Leo. They leave home at nine o’clock. On the way, they buy bread at a small bakery to feed the ducks. Leo loves the swings, but Mia prefers to read under a big oak tree. At twelve o’clock, they go home for lunch.</div>
+  <div class="head">Statements</div><div class="head r">T / F</div>
+  <div class="row" style="top:800px"><span class="num">1</span><span>Mia goes to the park on Sundays.</span></div><div class="box" style="top:800px"></div>
+  <div class="sep" style="top:960px"></div>
+  <div class="row" style="top:970px"><span class="num">2</span><span>Leo is Mia’s brother.</span></div><div class="box" style="top:970px"></div>
+  <div class="sep" style="top:1130px"></div>
+  <div class="row" style="top:1140px"><span class="num">3</span><span>They buy bread for the ducks.</span></div><div class="box" style="top:1140px"></div>
+  <div class="sep" style="top:1300px"></div>
+  <div class="row" style="top:1310px"><span class="num">4</span><span>Mia likes the swings best.</span></div><div class="box" style="top:1310px"></div>
+  <div class="sep" style="top:1470px"></div>
+  <div class="row" style="top:1480px"><span class="num">5</span><span>They go home for lunch at twelve.</span></div><div class="box" style="top:1480px"></div>
+  <div class="how" style="top:1660px">Write <b>T</b> (true) or <b>F</b> (false) in the box with your number.</div>
+</body></html>
