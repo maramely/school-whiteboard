@@ -6,8 +6,8 @@ const root = new URL('..', import.meta.url).pathname;
 const U = 'http://localhost:5173/';
 const res = []; const check = (n, ok, x = '') => { res.push(ok); console.log(ok ? 'PASS' : 'FAIL', '-', n, x); };
 const X = {
-  ru: { status: 'Урок завершён', h1: 'Вы можете сохранить эту доску', hint: (t) => `Доска удалится автоматически в ${t}, через час после урока. Скачанный файл останется у вас.`, btns: 'Скачать PNG|Удалить доску|Новая доска', loc: 'ru-RU' },
-  en: { status: 'Lesson finished', h1: 'You can save this board', hint: (t) => `The board will be deleted automatically at ${t}, an hour after the lesson. Your downloaded file stays with you.`, btns: 'Download PNG|Delete board|New board', loc: 'en-GB' },
+  ru: { status: 'Урок завершён', h1: 'Вы можете сохранить эту доску', hint: (t) => `Доска хранится в этом браузере до ${t}. Если вы закроете сайт, она удалится при следующем открытии после этого времени. Скачанный файл останется у вас.`, btns: 'Скачать PNG|Удалить доску|Новая доска', loc: 'ru-RU' },
+  en: { status: 'Lesson finished', h1: 'You can save this board', hint: (t) => `The board is kept in this browser until ${t}. If you close the site, it will be deleted the next time you open it after that time. Your downloaded file stays with you.`, btns: 'Download PNG|Delete board|New board', loc: 'en-GB' },
 };
 const c = await launch({ port: 9408 });
 try {

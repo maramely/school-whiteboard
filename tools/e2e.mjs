@@ -205,7 +205,7 @@ try {
   check('Имя файла предложено по дате и времени', /^доска-\d{4}-\d\d-\d\d-\d\d-\d\d$/.test(defName), defName);
   check('Расширение .png показано отдельно', await T.eval(`document.querySelector('.file-field .ext').textContent==='.png'`));
   const delTxt = await T.eval(`document.querySelector('.result-side .hint').textContent`);
-  check('Показано время автоудаления', /удалится автоматически в \d\d:\d\d/.test(delTxt), delTxt);
+  check('Показано время, до которого доска хранится', /хранится в этом браузере до \d\d:\d\d/.test(delTxt), delTxt);
   await T.eval(`window.__dl=[]; const oc=HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click=function(){ if(this.download) window.__dl.push(this.download); return oc.call(this); }; true`);
   await T.eval(`document.querySelector('#f-file').value='6Б True or False.png'; document.querySelector('#dl-form').requestSubmit(); true`); await sleep(2500);
   await T.eval(`document.querySelector('#dl-form').requestSubmit(); true`); await sleep(2500);

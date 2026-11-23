@@ -58,7 +58,7 @@
       boardAuto: 'Доска · {date}', fileBase: 'доска',
       resultTitle: 'Вы можете сохранить эту доску', endedAt: 'Урок завершён', fileName: 'Имя файла',
       fileHelp: 'Расширение .png добавится автоматически. Файл можно переименовать и на компьютере.',
-      deletesAt: 'Доска удалится автоматически в {time}, через час после урока. Скачанный файл останется у вас.',
+      deletesAt: 'Доска хранится в этом браузере до {time}. Если вы закроете сайт, она удалится при следующем открытии после этого времени. Скачанный файл останется у вас.',
       deleteBoard: 'Удалить доску', deleteTitle: 'Удалить доску?', deleteText: 'Удалятся загруженная картинка, все штрихи и итоговый лист. Скачанные PNG останутся у вас. Отменить удаление нельзя.',
       deletedTitle: 'Доска удалена', deletedText: 'Учитель удалил доску вместе с картинкой и пометками.',
       expiredTitle: 'Срок хранения истёк', expiredText: 'Доска удаляется через час после урока. Скачанные PNG сохранились у учителя.',
@@ -136,7 +136,7 @@
       boardAuto: 'Board · {date}', fileBase: 'board',
       resultTitle: 'You can save this board', endedAt: 'Lesson finished', fileName: 'File name',
       fileHelp: 'The .png extension is added automatically. You can also rename the file on your computer.',
-      deletesAt: 'The board will be deleted automatically at {time}, an hour after the lesson. Your downloaded file stays with you.',
+      deletesAt: 'The board is kept in this browser until {time}. If you close the site, it will be deleted the next time you open it after that time. Your downloaded file stays with you.',
       deleteBoard: 'Delete board', deleteTitle: 'Delete the board?', deleteText: 'The uploaded image, all strokes and the final sheet will be deleted. Downloaded PNGs stay with you. This can’t be undone.',
       deletedTitle: 'Board deleted', deletedText: 'The teacher deleted the board with its image and marks.',
       expiredTitle: 'Storage period has ended', expiredText: 'Boards are deleted one hour after the lesson. The teacher keeps any downloaded PNGs.',
@@ -341,10 +341,14 @@
     store.del(K.board(id));
     store.set(K.boards, (store.get(K.boards) || []).filter((x) => x !== id));
   }
+  // Срок проверяется для ВСЕХ сохранённых в браузере досок (ключи wb:board:*), а не только для списка
+  // последних 50 (wb:boards): доска, выпавшая из списка, тоже удаляется по сроку.
+  // Запускается при каждом открытии сайта и переходе между экранами, а также раз в 15 секунд.
   function purgeExpired() {
     const gone = [];
-    for (const id of store.get(K.boards) || []) {
-      const b = store.get(K.board(id));
+    for (const key of store.keys(K.board(''))) {
+      const id = key.slice(K.board('').length);
+      const b = store.get(key);
       if (b && Date.now() >= expiresAt(b)) { deleteBoard(id, 'expired'); gone.push(id); }
     }
     return gone;
