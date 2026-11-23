@@ -695,7 +695,7 @@
   // Переключателя RU/EN на экранах нет: язык приходит из платформы / настроек демо (langSw оставлен для отладки)
   function pageShell(inner, { brandLink = true, langSw = false, center = false } = {}) {
     return `<div class="page${center ? ' is-centered' : ''}"><header class="page-top">
-      ${brandLink ? `<a class="brand" href="#/" aria-label="${esc(t('home'))}">` : '<div class="brand">'}<span class="brand-mark">${icon('board')}</span><span>${esc(t('appName'))}</span>${brandLink ? '</a>' : '</div>'}
+      ${brandLink ? `<a class="brand" href="#/" aria-label="${esc(t('home'))}">` : '<div class="brand">'}<img class="brand-mark" src="brand-icon.png" width="32" height="32" alt="" decoding="async"><span>${esc(t('appName'))}</span>${brandLink ? '</a>' : '</div>'}
       ${langSw ? langSwitch() : ''}</header><main class="page-main" id="main">${inner}</main></div>`;
   }
 
