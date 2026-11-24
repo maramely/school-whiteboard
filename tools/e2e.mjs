@@ -17,7 +17,7 @@ try {
   await T.goto(URL0 + '#/');
   await T.eval(`localStorage.clear(); sessionStorage.clear(); location.hash = '#/'; true`); await sleep(500);
   check('Стартовая: только необязательное поле задания и кнопка', await T.eval(`!document.querySelector('input') && !!document.querySelector('#f-task') && document.querySelectorAll('main button').length===1`));
-  check('Название сервиса: «Интерактивная доска»', /Интерактивная доска/.test(await T.eval(`document.querySelector('.brand').textContent`)));
+  check('Название сервиса: «Magic Board»', /^Magic Board$/.test(await T.eval(`document.querySelector('.brand').textContent.trim()`)));
   await T.eval(`document.querySelector('#f-task').value='Выберите True or False'; document.querySelector('#create-form').requestSubmit(); true`);
   await sleep(900);
   const boardId = await T.eval(`location.hash.split('/')[2]`);

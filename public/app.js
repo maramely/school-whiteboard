@@ -47,7 +47,7 @@
   };
   const I18N = {
     ru: {
-      appName: 'Интерактивная доска',
+      appName: 'Magic Board',
       homeTitle: 'Пространство для совместной работы',
       homeLead: 'Создайте доску и отправьте ученикам ссылку',
       boardTitle: 'Название доски', boardTitlePh: 'Например: English 6Б', defaultTitle: 'Урок {date}',
@@ -125,7 +125,7 @@
       teacherStart: 'Стартовая страница учителя',
     },
     en: {
-      appName: 'Interactive Board',
+      appName: 'Magic Board',
       homeTitle: 'A space to work together',
       homeLead: 'Create a board and share the link with your students',
       boardTitle: 'Board title', boardTitlePh: 'e.g. English 6B', defaultTitle: 'Lesson {date}',
@@ -695,7 +695,7 @@
   // Переключателя RU/EN на экранах нет: язык приходит из платформы / настроек демо (langSw оставлен для отладки)
   function pageShell(inner, { brandLink = true, langSw = false, center = false } = {}) {
     return `<div class="page${center ? ' is-centered' : ''}"><header class="page-top">
-      ${brandLink ? `<a class="brand" href="#/" aria-label="${esc(t('home'))}">` : '<div class="brand">'}<img class="brand-mark" src="brand-logo.png" width="44" height="32" alt="" decoding="async"><span>${esc(t('appName'))}</span>${brandLink ? '</a>' : '</div>'}
+      ${brandLink ? `<a class="brand" href="#/" aria-label="${esc(t('home'))}">` : '<div class="brand">'}<img class="brand-mark" src="brand-logo.png" width="44" height="32" alt="" decoding="async"><span class="brand-name">${esc(t('appName'))}</span>${brandLink ? '</a>' : '</div>'}
       ${langSw ? langSwitch() : ''}</header><main class="page-main" id="main">${inner}</main></div>`;
   }
 

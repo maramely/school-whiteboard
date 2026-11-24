@@ -1,8 +1,10 @@
 /* =========================================================
-   Интерактивная доска — визуальный стиль
+   Magic Board — визуальный стиль
    Референс: лёгкость Apple Freeform на iPad. Пастельная палитра,
    системный шрифт, плавающие «стеклянные» панели, белое полотно.
    ========================================================= */
+/* Шрифт только для названия в шапке (Bricolage Grotesque 600, латиница, SIL OFL 1.1); путь относительный — работает под /school-whiteboard/ */
+@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/bricolage-grotesque-600-latin.woff2') format('woff2'); }
 :root {
   /* Palette — светлая холодная лаванда */
   --bg: #FAFAFD;            /* почти белый фон */
@@ -120,7 +122,8 @@ a.btn { text-decoration: none; }
 .page-top { display: flex; align-items: center; justify-content: space-between; padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left)); }
 .page-top .lang { padding: 3px; border-radius: 14px; background: var(--glass); box-shadow: 0 0 0 1px var(--glass-edge); }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: var(--fs-15); text-decoration: none; color: var(--ink); min-height: var(--hit); }
-.brand-mark { width: 44px; height: 32px; display: block; flex: none; object-fit: contain; } /* планшет с ручкой без фиолетовой подложки; файл 132×97 — чётко на Retina */
+.brand-mark { width: 44px; height: 32px; display: block; flex: none; object-fit: contain; } /* карандаш со штрихом без плашки; файл 132×97 — чётко на Retina */
+.brand-name { font-family: 'Bricolage Grotesque', var(--font, system-ui), sans-serif; font-weight: 600; font-size: 20px; line-height: 1; color: #363052; white-space: nowrap; }
 .page-main { flex: 1; display: flex; justify-content: center; padding: 16px 16px 40px; }
 .card { width: 100%; max-width: 540px; background: #fff; border-radius: var(--r-xl); box-shadow: 0 0 0 1px var(--glass-edge), var(--shadow-2); padding: 32px; align-self: flex-start; }
 .card h1 { font-size: var(--fs-30); line-height: 1.12; margin: 0 0 8px; font-weight: 700; letter-spacing: -.022em; text-wrap: balance; }
