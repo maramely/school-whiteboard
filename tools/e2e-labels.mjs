@@ -6,8 +6,8 @@ const root = new URL('..', import.meta.url).pathname;
 const U = 'http://localhost:5173/';
 const res = []; const check = (n, ok, x = '') => { res.push(ok); console.log(ok ? 'PASS' : 'FAIL', '-', n, x); };
 const L = {
-  ru: { ph: 'Например: обведите правильный ответ', copy: 'Копировать ссылку', copied: 'Скопировано', end: 'Завершить', title: 'Завершить сессию?', btns: 'Отмена|Завершить сессию' },
-  en: { ph: 'For example: circle the correct answer', copy: 'Copy link', copied: 'Copied', end: 'End', title: 'End session?', btns: 'Cancel|End session' },
+  ru: { ph: 'Например: обведите правильный ответ', copy: 'Копировать ссылку', copied: 'Скопировано', end: 'Завершить урок', title: 'Завершить сессию?', btns: 'Отмена|Завершить сессию' },
+  en: { ph: 'For example: circle the correct answer', copy: 'Copy link', copied: 'Copied', end: 'End lesson', title: 'End session?', btns: 'Cancel|End session' },
 };
 const c = await launch({ port: 9402 });
 try {

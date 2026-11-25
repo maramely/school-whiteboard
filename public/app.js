@@ -95,7 +95,7 @@
       shareTitle: 'Результат сохранён', shareText: 'Снимок доски на {time}. Новые пометки в него не попадут.',
       shareDemo: 'Демо-ссылка открывается в этом браузере.',
       downloadPng: 'Скачать PNG', pngSaved: 'Скачан {name}',
-      endLesson: 'Завершить', endTitle: 'Завершить сессию?',
+      endLesson: 'Завершить урок', endTitle: 'Завершить сессию?',
       endText: 'Ученики больше не смогут рисовать, приглашение перестанет открывать доску. Вы увидите итоговый лист и сможете скачать PNG.',
       endConfirm: 'Завершить сессию', cancel: 'Отмена', remove: 'Удалить', clearConfirm: 'Очистить',
       endedBanner: 'Урок завершён', newBoard: 'Новая доска',
@@ -173,7 +173,7 @@
       shareTitle: 'Result saved', shareText: 'Snapshot of the board at {time}. New marks won’t be added to it.',
       shareDemo: 'The demo link opens in this browser.',
       downloadPng: 'Download PNG', pngSaved: 'Downloaded {name}',
-      endLesson: 'End', endTitle: 'End session?',
+      endLesson: 'End lesson', endTitle: 'End session?',
       endText: 'Students can no longer draw and the invite will stop opening the board. You’ll see the final sheet and can download a PNG.',
       endConfirm: 'End session', cancel: 'Cancel', remove: 'Remove', clearConfirm: 'Clear',
       endedBanner: 'Lesson ended', newBoard: 'New board',
@@ -240,6 +240,7 @@
     imageOff: '<path d="M2 2l20 20"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><path d="M13.5 13.5 6 21"/><path d="m18 12 3 3"/><path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/>',
     share: '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/>',
     trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+    brushCleaning: '<path d="m16 22-1-4"/><path d="M19 14a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2h-3a1 1 0 0 1-1-1V4a2 2 0 0 0-4 0v5a1 1 0 0 1-1 1H6a2 2 0 0 0-2 2v1a1 1 0 0 0 1 1"/><path d="M19 14H5l-1.973 6.767A1 1 0 0 0 4 22h16a1 1 0 0 0 .973-1.233z"/><path d="m8 22 1-4"/>',
     flag: '<path d="M4 22V4"/><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1"/>',
     download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
     copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
@@ -618,6 +619,49 @@
     if (action) el.querySelector('.toast-btn').addEventListener('click', () => { clearTimeout(timer); el.remove(); action.onClick(); });
     return el;
   }
+  /* ---------- Способ ввода: мышь/касание или клавиатура ----------
+     Фокус, который ставит сам интерфейс (окно подтверждения), после клика мышью не показывает кольцо.
+     Клавиатурный фокус (Tab, Enter, Esc) показывает кольцо как обычно */
+  let lastInput = 'pointer';
+  document.addEventListener('pointerdown', () => { lastInput = 'pointer'; }, true);
+  document.addEventListener('keydown', (e) => { if (!e.metaKey && !e.ctrlKey) lastInput = 'key'; document.querySelectorAll('.focus-quiet').forEach((x) => x.classList.remove('focus-quiet')); }, true);
+  function softFocus(el) {
+    if (!el || !el.focus) return;
+    if (lastInput === 'pointer') { el.classList.add('focus-quiet'); el.addEventListener('blur', () => el.classList.remove('focus-quiet'), { once: true }); }
+    el.focus({ preventScroll: true });
+  }
+
+  /* ---------- Подсказки к кнопкам без видимой подписи ----------
+     Текст — data-tip. Мышь: после короткой задержки; клавиатура: сразу при фокусе. На касании не показываются
+     (у кнопок есть aria-label, а у главных действий — видимые подписи). Не выходят за края экрана */
+  const Tip = (() => {
+    let el = null, cur = null, timer = 0;
+    const hasLabel = (b) => { const l = b.querySelector('.lbl-stack'); return !!l && l.offsetWidth > 0; };
+    const hide = () => { clearTimeout(timer); timer = 0; cur = null; if (el) el.hidden = true; };
+    const show = (b) => {
+      const text = b.dataset.tip; if (!text || hasLabel(b) || !b.isConnected) return;
+      if (!el) { el = document.createElement('div'); el.className = 'tip'; el.setAttribute('role', 'tooltip'); el.hidden = true; document.body.appendChild(el); }
+      cur = b; el.textContent = text; el.hidden = false;
+      const r = b.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight, m = 8;
+      const below = r.top + r.height / 2 < innerHeight / 2;
+      const left = Math.max(m, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - m));
+      el.style.left = left + 'px'; el.style.top = (below ? r.bottom + 8 : r.top - h - 8) + 'px';
+      el.dataset.side = below ? 'bottom' : 'top';
+    };
+    const target = (e) => { const b = e.target.closest && e.target.closest('[data-tip]'); return b && b.closest('.board-app') ? b : null; };
+    document.addEventListener('pointerover', (e) => {
+      if (e.pointerType !== 'mouse') return; const b = target(e); if (!b || b === cur) return;
+      hide(); timer = setTimeout(() => show(b), 450);
+    });
+    document.addEventListener('pointerout', (e) => { const b = target(e); if (b && !b.contains(e.relatedTarget)) hide(); });
+    document.addEventListener('focusin', (e) => { const b = target(e); if (b && lastInput === 'key' && b.matches(':focus-visible')) { hide(); show(b); } else if (!b) hide(); });
+    document.addEventListener('focusout', (e) => { if (target(e) === cur) hide(); });
+    document.addEventListener('pointerdown', hide, true);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); }, true);
+    addEventListener('scroll', hide, true); addEventListener('resize', hide);
+    return { hide };
+  })();
+
   let modalClose = null;
   function openModal({ title, text, body = '', actions = [] }) {
     closeModal();
@@ -634,9 +678,9 @@
       const a = actions[+b.dataset.i]; const keep = a.onClick && a.onClick() === false; if (!keep) closeModal();
     });
     document.addEventListener('keydown', onKey);
-    modalClose = () => { document.removeEventListener('keydown', onKey); root.innerHTML = ''; modalClose = null; if (prevFocus && prevFocus.focus) prevFocus.focus(); };
+    modalClose = () => { document.removeEventListener('keydown', onKey); root.innerHTML = ''; modalClose = null; if (prevFocus && prevFocus.isConnected) softFocus(prevFocus); };
     const primary = back.querySelector('.btn-primary, .btn-danger') || back.querySelector('.modal-actions .btn');
-    if (primary) primary.focus();
+    if (primary) softFocus(primary);
     return back;
   }
   function closeModal() { if (modalClose) modalClose(); }
@@ -695,7 +739,7 @@
   // Переключателя RU/EN на экранах нет: язык приходит из платформы / настроек демо (langSw оставлен для отладки)
   function pageShell(inner, { brandLink = true, langSw = false, center = false } = {}) {
     return `<div class="page${center ? ' is-centered' : ''}"><header class="page-top">
-      ${brandLink ? `<a class="brand" href="#/" aria-label="${esc(t('home'))}">` : '<div class="brand">'}<img class="brand-mark" src="brand-logo.png" width="44" height="32" alt="" decoding="async"><span class="brand-name">${esc(t('appName'))}</span>${brandLink ? '</a>' : '</div>'}
+      ${brandLink ? `<a class="brand" href="#/" aria-label="${esc(t('home'))}">` : '<div class="brand">'}<img class="brand-mark" src="brand-logo.svg" width="163" height="40" alt="${esc(t('appName'))}" decoding="async">${brandLink ? '</a>' : '</div>'}
       ${langSw ? langSwitch() : ''}</header><main class="page-main" id="main">${inner}</main></div>`;
   }
 
@@ -1001,6 +1045,11 @@
       if (i >= 0) s.elements[i] = clone(target);
     }
     s.elements.sort((a, b) => a.z - b.z);
+    if (op.image) {
+      const from = dir > 0 ? op.image[0] : op.image[1], to = dir > 0 ? op.image[1] : op.image[0];
+      const same = (x, y) => (!x && !y) || (!!x && !!y && x.imgId === y.imgId);
+      if (same(s.image, from)) s.image = to ? clone(to) : null;
+    }
   }
 
   /* ---------------- Shared tool state (survives language switch) ---------------- */
@@ -1071,8 +1120,8 @@
           </div>
         </div>
         <div class="tb-right">
-          ${isTeacher ? (readOnly ? '' : `<button class="btn btn-side" data-action="clear" aria-label="${esc(t('clear'))}" title="${esc(t('clear'))}">${icon('trash')}${L('clear', 'lbl')}</button>
-            <button class="btn btn-finish" data-action="end">${icon('flag')}${L('endLesson')}</button>`) : `<button class="btn btn-side btn-student" data-action="erase-mine" aria-label="${esc(t('eraseMine'))}" title="${esc(t('eraseMine'))}">${icon('eraserAll')}${L('eraseMine', 'lbl')}</button>
+          ${isTeacher ? (readOnly ? '' : `<button class="btn btn-side btn-clear" data-action="clear" aria-label="${esc(t('clear'))}" data-tip="${esc(t('clear'))}">${icon('brushCleaning')}${L('clear', 'lbl')}</button>
+            <button class="btn btn-finish" data-action="end">${icon('flag')}${L('endLesson')}</button>`) : `<button class="btn btn-side btn-student" data-action="erase-mine" aria-label="${esc(t('eraseMine'))}" title="${esc(t('eraseMine'))}">${icon('brushCleaning')}${L('eraseMine', 'lbl')}</button>
             <button class="btn btn-finish btn-student" data-action="leave">${icon('logout')}${L('leave')}</button>`}
         </div>
       </header>
@@ -1091,7 +1140,7 @@
           <div class="widths" role="radiogroup" aria-labelledby="fl-size">${['thin', 'medium', 'thick'].map((n, i) => `<button class="width-btn" data-size="${i}" role="radio" aria-checked="false" aria-label="${esc(t(n))}" title="${esc(t(n))}"><span style="width:${[18, 22, 26][i]}px;height:${[3, 6, 11][i]}px"></span></button>`).join('')}</div></div>
         </div>`}
         <div class="pop-anchor people-dock">
-          <button class="people-btn glass" data-action="people" aria-expanded="false" aria-controls="people-pop">${icon('users')}<span class="people-count" aria-hidden="true"></span></button>
+          <button class="people-btn glass" data-action="people" aria-expanded="false" aria-controls="people-pop" aria-label="${esc(t('studentsOnBoard'))}" data-tip="${esc(t('studentsOnBoard'))}">${icon('users')}<span class="people-count" aria-hidden="true"></span></button>
           <div class="popover up people-pop" id="people-pop" hidden role="dialog" aria-labelledby="pp-title">
             <div class="pp-head"><span class="pop-head" id="pp-title">${esc(t('studentsOnBoard'))}</span><span class="pp-count" aria-hidden="true"></span></div>
             <ul class="people-list" aria-live="polite"></ul>
@@ -1110,6 +1159,8 @@
       </main>
       <input type="file" accept="image/png,image/jpeg" hidden id="file">
     </div>`;
+    Tip.hide();
+    app.querySelectorAll('.topbar button[title], .topbar a[title], .dock [title], .people-dock [title]').forEach((b) => { if (!b.dataset.tip) b.dataset.tip = b.title; b.removeAttribute('title'); });
 
     const stage = $('.stage', app), frame = $('.frame', app), overlay = $('.overlay', app);
     const base = $('canvas.base', app), live = $('canvas.live', app);
@@ -1252,7 +1303,7 @@
     let shownCount = null;
     function personRow(p) {
       const li = document.createElement('li'); li.dataset.pid = p.pid;
-      li.innerHTML = `<span class="avatar" style="background:${colorForPid(p.pid)}">${esc(initials(p.name))}</span><span class="pname">${esc(p.name)}</span>${p.pid === me.pid ? `<span class="tag">${esc(t('you'))}</span>` : ''}${isTeacher ? `<button class="kick-btn" data-kick="${esc(p.pid)}" data-name="${esc(p.name)}" aria-label="${esc(t('disconnect', { name: p.name }))}" title="${esc(t('disconnect', { name: p.name }))}">${icon('x', 'ic-sm')}</button>` : ''}`;
+      li.innerHTML = `<span class="avatar" style="background:${colorForPid(p.pid)}">${esc(initials(p.name))}</span><span class="pname">${esc(p.name)}</span>${p.pid === me.pid ? `<span class="tag">${esc(t('you'))}</span>` : ''}${isTeacher ? `<button class="kick-btn" data-kick="${esc(p.pid)}" data-name="${esc(p.name)}" aria-label="${esc(t('disconnect', { name: p.name }))}" data-tip="${esc(t('disconnect', { name: p.name }))}">${icon('x', 'ic-sm')}</button>` : ''}`;
       return li;
     }
     function renderPeople() {
@@ -1263,7 +1314,7 @@
       const cnt = $('.people-count', app);
       if (shownCount !== null && n !== shownCount && !open && !reduceMotion()) { cnt.classList.remove('bump'); void cnt.offsetWidth; cnt.classList.add('bump'); cnt.addEventListener('animationend', () => cnt.classList.remove('bump'), { once: true }); }
       cnt.textContent = String(n); $('.pp-count', app).textContent = String(n); shownCount = n;
-      btn.setAttribute('aria-label', `${t('studentsOnBoard')}: ${t('studentsN', n)}`); btn.title = t('studentsN', n);
+      btn.setAttribute('aria-label', `${t('studentsOnBoard')}: ${t('studentsN', n)}`); btn.dataset.tip = `${t('studentsOnBoard')}: ${t('studentsN', n)}`;
       // строки: добавляем новые, убираем ушедших, остальные не трогаем
       const want = new Map(students.map((p) => [p.pid, p]));
       ul.querySelectorAll('li.empty').forEach((e) => { if (n) e.remove(); });
@@ -1372,7 +1423,7 @@
       b.querySelector('svg').outerHTML = icon(placed ? 'imageOff' : 'image');
       b.querySelectorAll('[data-k]').forEach((sp) => { const on = sp.dataset.k === key && sp.dataset.l === lang; if (on) { sp.removeAttribute('data-off'); sp.removeAttribute('aria-hidden'); } else { sp.setAttribute('data-off', ''); sp.setAttribute('aria-hidden', 'true'); } });
       b.disabled = !!board.image && !placed; // во время предпросмотра
-      b.setAttribute('aria-label', t(key)); b.title = t(key);
+      b.setAttribute('aria-label', t(key)); b.dataset.tip = t(key);
     }
     // Новая картинка: расположить (перетащить, потянуть за угол) → «Разместить». После этого её можно только удалить
     let imgBox = null, imgDrag = null;
@@ -1523,9 +1574,12 @@
       } else if (a === 'clear') {
         closePops();
         confirmModal({ title: t('clearTitle'), text: t('clearText'), confirm: t('clearConfirm'), danger: true, onConfirm: () => {
-          if (board.elements.length) { commit({ added: [], removed: clone(board.elements), changed: [] }); deselect(); }
-          if (board.image) mutate((s) => { s.image = null; });
-          toast(t('clearDone'), 'trash');
+          // Одна операция истории: рисунки всех участников и изображение. «Отменить» (⌘Z) возвращает и то и другое
+          const op = { added: [], removed: clone(board.elements), changed: [] };
+          if (board.image) op.image = [clone(board.image), null];
+          if (!op.removed.length && !op.image) return;
+          deselect(); commit(op);
+          toast(t('clearDone'), 'brushCleaning', { label: t('restore'), onClick: () => { if (H.undo[H.undo.length - 1] === op) undo(); } });
         } });
       } else if (a === 'end') {
         confirmModal({ title: t('endTitle'), text: t('endText'), confirm: t('endConfirm'), onConfirm: () => {
@@ -1825,7 +1879,12 @@
       if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
       if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) { e.preventDefault(); deleteSelected(); return; }
-      if (e.key === 'Escape') { deselect(); closePops(); if (ui.flyout) { ui.flyout = false; syncToolbar(); } return; }
+      if (e.key === 'Escape') {
+        const inPop = document.activeElement && document.activeElement.closest && document.activeElement.closest('.popover');
+        deselect(); closePops(); if (ui.flyout) { ui.flyout = false; syncToolbar(); }
+        if (inPop) { const opener = app.querySelector(`[aria-controls="${inPop.id}"]`); if (opener) opener.focus(); }
+        return;
+      }
       if (mod || e.altKey) return;
       const tk = myTools.find((x) => x.key === e.key.toLowerCase());
       if (tk) setTool(tk.id);

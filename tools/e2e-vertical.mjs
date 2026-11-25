@@ -70,7 +70,7 @@ try {
   const placed = (await board()).image;
   const b1 = await imgBtn();
   check('«Вставить»: изображение закреплено, кнопка — «Удалить изображение» на том же месте', placed.locked && b1.text === 'Удалить изображение' && b1.left === btn0.left && b1.width === btn0.width, JSON.stringify(b1));
-  check('Дублей удаления нет: меню «⋯» нет, справа только «Очистить доску» и «Завершить урок»', await T.eval(`!document.querySelector('[data-action="menu"]') && [...document.querySelectorAll('.tb-right > .btn')].map(b=>b.dataset.action).join()==='clear,end'`));
+  check('Дублей удаления нет: справа только «Очистить доску» и «Завершить урок»', await T.eval(`[...document.querySelectorAll('.tb-right > .btn')].map(b=>b.dataset.action).join()==='clear,end' && document.querySelector('[data-action="clear"] [data-icon]').dataset.icon==='brushCleaning' && !document.querySelector('[data-action="more"]')`));
   { const [x1, y1] = sheetToBoard(placed, 100, 640), [x2, y2] = sheetToBoard(placed, 700, 640); const pts = []; for (let k = 0; k <= 12; k++) pts.push(await toFrame(T, x1 + (x2 - x1) * k / 12, y1 + 2)); await T.touchPath(pts); await sleep(300); }
   const withStroke = await board();
   check('Штрих поверх изображения', withStroke.elements.length === 1);

@@ -17,7 +17,7 @@ try {
   await T.goto(URL0 + '#/');
   await T.eval(`localStorage.clear(); sessionStorage.clear(); location.hash = '#/'; true`); await sleep(500);
   check('Стартовая: только необязательное поле задания и кнопка', await T.eval(`!document.querySelector('input') && !!document.querySelector('#f-task') && document.querySelectorAll('main button').length===1`));
-  check('Название сервиса: «Magic Board»', /^Magic Board$/.test(await T.eval(`document.querySelector('.brand').textContent.trim()`)));
+  check('Логотип Magic Board в шапке (SVG с подписью для экранных дикторов)', await T.eval(`(()=>{const i=document.querySelector('.brand img');return !!i&&/brand-logo\\.svg$/.test(i.getAttribute('src'))&&i.alt==='Magic Board'})()`));
   await T.eval(`document.querySelector('#f-task').value='Выберите True or False'; document.querySelector('#create-form').requestSubmit(); true`);
   await sleep(900);
   const boardId = await T.eval(`location.hash.split('/')[2]`);
@@ -56,7 +56,7 @@ try {
     await T.eval(`document.querySelector('[data-img="place"]').click(); true`); await sleep(300);
     check('«Разместить» закрепляет лист навсегда (рамки больше нет)', await T.eval(`JSON.parse(localStorage.getItem('wb:board:${boardId}')).image.locked === true && !document.querySelector('.img-box')`));
     // удалить через «Ещё» → тост «Картинка удалена» → «Вернуть»
-    check('Меню «⋯» нет; «Очистить доску» и «Завершить» рядом справа', await T.eval(`!document.querySelector('[data-action="menu"]') && [...document.querySelectorAll('.tb-right > .btn')].map(b=>b.dataset.action).join()==='clear,end'`));
+    check('Справа «Очистить доску» (BrushCleaning) и «Завершить урок», меню «Ещё» нет', await T.eval(`[...document.querySelectorAll('.tb-right > .btn')].map(b=>b.dataset.action).join()==='clear,end' && document.querySelector('[data-action="clear"] [data-icon]').dataset.icon==='brushCleaning' && !document.querySelector('[data-action="more"]')`));
     check('Кнопка в шапке после вставки — «Удалить изображение»', await T.eval(`document.querySelector('[data-action="image"]').innerText.trim()`) === 'Удалить изображение');
     await T.eval(`document.querySelector('[data-action="image"]').click(); true`); await sleep(250);
     await T.eval(`document.querySelector('.modal .btn-danger').click(); true`); await sleep(300);
@@ -95,7 +95,7 @@ try {
     const ru = await T.eval(pos); await T.eval(`(()=>{location.hash=location.hash.split('?')[0]+'?lang=en'; return true})()`); await sleep(600);
     const en = await T.eval(pos); const lbl = await T.eval(`document.querySelector('[data-action="end"]').innerText.trim()`);
     check('Язык платформы RU/EN не сдвигает меню', ru === en, ru + ' / ' + en);
-    check('EN: «End»', lbl === 'End', lbl);
+    check('EN: «End lesson»', lbl === 'End lesson', lbl);
     await T.eval(`(()=>{location.hash=location.hash.split('?')[0]+'?lang=ru'; return true})()`); await sleep(600); }
 
   // Геометрия: док не перекрывает лист

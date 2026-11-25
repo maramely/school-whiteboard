@@ -32,14 +32,14 @@ try {
     const a = await audit(P, '.topbar .ic, .dock .ic, .people-dock .ic');
     check(`${who}: все иконки шапки, дока и счётчика — 20 px, линия 1,75, currentColor`, a.n > 8 && a.bad.length === 0, `${a.n} иконок ${JSON.stringify(a.bad)}`);
     const st = await P.eval(`(()=>{const cs=(s)=>getComputedStyle(document.querySelector(s)); const root=getComputedStyle(document.documentElement);
-      return {pen:cs('[data-tool="pen"]').color, sel:cs('[data-tool="select"]').color, task:cs('[data-action="task"]').color, ink:cs('.dock').color,
+      return {pen:cs('[data-tool="pen"]').color, eraser:cs('[data-tool="eraser"]').color, sel:cs('[data-tool="select"]').color, task:cs('[data-action="task"]').color, ink:cs('.dock').color,
         activeBg:cs('[data-tool="pen"][aria-pressed="true"]').backgroundColor, undoDisabled:document.querySelector('[data-action="undo"]').disabled, undo:cs('[data-action="undo"]').color,
-        danger:getComputedStyle(document.querySelector('[data-action="clear"] .ic, [data-action="erase-mine"] .ic')).color,
+        danger:(document.querySelector('[data-action="erase-mine"] .ic')?getComputedStyle(document.querySelector('[data-action="erase-mine"] .ic')).color:null), clearItem:(document.querySelector('[data-action="clear"] .ic')?getComputedStyle(document.querySelector('[data-action="clear"] .ic')).color:null), activeIc:cs('[data-tool="pen"][aria-pressed="true"]').color,
         small:[...document.querySelectorAll('.dock button, .topbar button, .topbar a, .people-btn')].filter(b=>b.offsetParent).map(b=>b.getBoundingClientRect()).filter(r=>Math.min(r.width,r.height)<44).length}})()`);
-    check(`${who}: один цвет иконок по умолчанию`, st.pen === st.sel && st.sel === st.task, `${st.pen} / ${st.sel} / ${st.task}`);
-    check(`${who}: активный инструмент — мягкая сиреневая подложка`, st.activeBg === 'rgb(228, 223, 253)', st.activeBg);
+    check(`${who}: один цвет иконок по умолчанию (неактивные инструменты и кнопки шапки)`, st.eraser === st.sel && st.sel === st.task, `${st.eraser} / ${st.sel} / ${st.task}`);
+    check(`${who}: активный инструмент — сиреневая подложка и иконка #6A57C2`, st.activeBg === 'rgb(228, 223, 253)' && st.activeIc === 'rgb(106, 87, 194)', st.activeBg + ' / ' + st.activeIc);
     check(`${who}: отключённая «Отменить» — приглушённый оттенок`, st.undoDisabled && st.undo === 'rgb(185, 181, 204)', st.undo);
-    check(`${who}: иконка удаления/стирания — красный акцент`, /^rgb\(1[6-9]\d|^rgb\(2\d\d/.test(st.danger) && st.danger !== st.pen, st.danger);
+    check(`${who}: «Стереть мои записи» — красный акцент; «Очистить доску» — нейтральная`, who === 'Учитель' ? st.clearItem === st.task : /^rgb\(1[6-9]\d|^rgb\(2\d\d/.test(st.danger), who === 'Учитель' ? st.clearItem : st.danger);
     check(`${who}: цели касания ≥ 44×44`, st.small === 0, String(st.small));
     await P.eval(`document.querySelector('[data-tool="stamp"]').click(); true`); await sleep(300);
     const pal = await P.eval(`(()=>{const f=document.querySelector('.flyout');return {open:!f.hidden, emoji:[...f.querySelectorAll('.react-emoji')].length, lucide:f.querySelectorAll('.ic').length}})()`);

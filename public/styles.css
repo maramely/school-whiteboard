@@ -3,8 +3,6 @@
    Референс: лёгкость Apple Freeform на iPad. Пастельная палитра,
    системный шрифт, плавающие «стеклянные» панели, белое полотно.
    ========================================================= */
-/* Шрифт только для названия в шапке (Bricolage Grotesque 600, латиница, SIL OFL 1.1); путь относительный — работает под /school-whiteboard/ */
-@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/bricolage-grotesque-600-latin.woff2') format('woff2'); }
 :root {
   /* Palette — светлая холодная лаванда */
   --bg: #FAFAFD;            /* почти белый фон */
@@ -33,7 +31,7 @@
   --glass-edge: rgba(54, 48, 82, .07);
   --shadow-1: 0 1px 2px rgba(54, 48, 82, .05), 0 4px 14px rgba(54, 48, 82, .06);
   --shadow-2: 0 2px 6px rgba(54, 48, 82, .06), 0 14px 36px rgba(54, 48, 82, .10);
-  --shadow-3: 0 6px 16px rgba(54, 48, 82, .08), 0 24px 60px rgba(54, 48, 82, .16);
+  --shadow-3: 0 4px 12px rgba(54, 48, 82, .06), 0 16px 40px rgba(54, 48, 82, .11); /* мягче: было 0 6 16 .08, 0 24 60 .16 */
 
   --hit: 44px;
   --tool: 48px;
@@ -64,7 +62,7 @@ a { color: var(--accent-ink); }
 .ic-sm { width: 20px; height: 20px; } /* единый размер иконок во всех панелях */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 :focus { outline: none; }
-:focus-visible { outline: 3px solid var(--accent-ink); outline-offset: 2px; border-radius: 10px; }
+:focus-visible { outline: 3px solid var(--accent-ink); outline-offset: 2px; }
 
 /* Light material */
 .glass {
@@ -122,8 +120,8 @@ a.btn { text-decoration: none; }
 .page-top { display: flex; align-items: center; justify-content: space-between; padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left)); }
 .page-top .lang { padding: 3px; border-radius: 14px; background: var(--glass); box-shadow: 0 0 0 1px var(--glass-edge); }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: var(--fs-15); text-decoration: none; color: var(--ink); min-height: var(--hit); }
-.brand-mark { width: 44px; height: 32px; display: block; flex: none; object-fit: contain; } /* карандаш со штрихом без плашки; файл 132×97 — чётко на Retina */
-.brand-name { font-family: 'Bricolage Grotesque', var(--font, system-ui), sans-serif; font-weight: 600; font-size: 20px; line-height: 1; color: #363052; white-space: nowrap; }
+.brand-mark { height: 40px; width: auto; aspect-ratio: 1792 / 440; display: block; flex: none; } /* фирменный знак (SVG, вектор): строчные ≈ 8,4 px — читаются как текст интерфейса */
+@media (max-width: 640px) { .brand-mark { height: 36px; } }
 .page-main { flex: 1; display: flex; justify-content: center; padding: 16px 16px 40px; }
 .card { width: 100%; max-width: 540px; background: #fff; border-radius: var(--r-xl); box-shadow: 0 0 0 1px var(--glass-edge), var(--shadow-2); padding: 32px; align-self: flex-start; }
 .card h1 { font-size: var(--fs-30); line-height: 1.12; margin: 0 0 8px; font-weight: 700; letter-spacing: -.022em; text-wrap: balance; }
@@ -138,7 +136,7 @@ a.btn { text-decoration: none; }
   transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
 }
 .textarea { resize: vertical; min-height: 84px; line-height: 1.4; }
-.input::placeholder, .textarea::placeholder { color: #8C89A6; }
+.input::placeholder, .textarea::placeholder { color: #747090; } /* 4,7:1 на белом (было 3,4:1) */
 /* Единый фокус всех полей (задание в панели и на старте, имя ученика, имя файла, ссылка):
    меняется только цвет существующей границы 1 px — без общего контура :focus-visible, колец и теней.
    Одинаково при клике, касании и Tab; размер и скругление не меняются */
@@ -174,8 +172,9 @@ a.btn { text-decoration: none; }
 .gone-art { display: block; width: 160px; max-width: 60%; height: auto; margin: -8px auto 12px; background: transparent; } /* −20% (было 200) */
 @media (max-height: 560px) { .gone-art { width: 112px; } }
 .card.hero { max-width: 520px; text-align: center; margin-top: 8px; }
-.mascot { display: block; width: 132px; height: 132px; margin: -4px auto 12px; }
+.mascot { display: block; width: 132px; height: 132px; margin: -4px auto 4px; }
 .hero-form { text-align: left; margin-top: 8px; }
+.card.hero h1 { margin-bottom: 6px; }
 
 /* Result screen */
 .card.result { max-width: 1160px; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); gap: 32px; align-items: start; }
@@ -193,7 +192,7 @@ a.btn { text-decoration: none; }
 /* ---------- Board ---------- */
 .board-app { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
 .topbar {
-  flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px;
+  flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr); align-items: center; gap: 12px;
   min-height: 64px; padding: 10px max(14px, env(safe-area-inset-right)) 6px max(14px, env(safe-area-inset-left));
   position: relative; z-index: var(--z-panel);
 }
@@ -206,14 +205,14 @@ a.btn { text-decoration: none; }
 .role-tag { display: inline-flex; align-items: center; gap: 6px; }
 .role-tag .dot { width: 7px; height: 7px; border-radius: 50%; }
 .icon-btn {
-  width: var(--hit); height: var(--hit); border-radius: 14px; border: 0; display: grid; place-items: center; color: var(--ink); cursor: pointer; text-decoration: none;
+  width: var(--hit); height: var(--hit); flex: none; border-radius: 14px; border: 0; display: grid; place-items: center; color: var(--ink); cursor: pointer; text-decoration: none;
   transition: background-color var(--dur-fast), transform var(--dur-fast) var(--ease-out);
 }
 .icon-btn:hover, .icon-btn[aria-expanded="true"] { background: var(--lav); }
 .icon-btn:active { transform: scale(.95); }
-.group { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 15px; }
+.group { display: flex; align-items: center; gap: 2px; padding: 0; border-radius: 14px; } /* высота = высоте кнопок (44): вровень с соседями */
 .gbtn {
-  display: inline-flex; align-items: center; gap: 7px; min-height: var(--hit); padding: 0 12px; border: 0; border-radius: 12px;
+  display: inline-flex; align-items: center; gap: 7px; min-height: var(--hit); padding: 0 12px; border: 0; border-radius: 14px;
   background: transparent; font-size: var(--fs-14); font-weight: 400; color: var(--ink); cursor: pointer; white-space: nowrap; position: relative;
   transition: background-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
@@ -221,8 +220,14 @@ a.btn { text-decoration: none; }
 .gbtn:hover { background: var(--lav); }
 .gbtn:active { transform: scale(.97); transition-duration: 60ms; }
 .gbtn[aria-expanded="true"] { background: var(--lav-2); }
-.btn-side, .btn-finish { margin-left: 0; min-height: var(--hit); background: #fff; font-weight: 600; font-size: var(--fs-14); box-shadow: 0 0 0 1px var(--line), var(--shadow-1); }
+.btn-side, .btn-finish { margin-left: 0; min-height: var(--hit); border-radius: 14px; background: #fff; font-weight: 600; font-size: var(--fs-14); box-shadow: 0 0 0 1px var(--line), var(--shadow-1); }
 .btn-side:hover, .btn-finish:hover { background: var(--lav); }
+/* «Завершить урок» — главное действие учителя: светло-лавандовая заливка, тёмный полужирный текст (10,6:1) */
+.btn-finish:not(.btn-student) { background: var(--lav); box-shadow: 0 0 0 1px var(--lav-2); }
+.btn-finish:not(.btn-student):hover { background: var(--lav-2); }
+.btn-finish:not(.btn-student):active { background: var(--lav-3); }
+/* «Очистить доску» — нейтральная (белая, тонкая рамка); «Завершить урок» отделена от неё 12 px (8 px gap + 4 px) */
+.tb-right .btn-finish:not(.btn-student) { margin-left: 4px; }
 .btn-side { font-weight: 400; }
 .people { font-variant-numeric: tabular-nums; padding-left: 8px; }
 .avatars { display: inline-flex; }
@@ -252,9 +257,10 @@ a.btn { text-decoration: none; }
 .people-list .avatar .ic { width: 16px; height: 16px; }
 .people-list .tag { margin-left: auto; font-size: var(--fs-12); color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
 .empty { color: var(--ink-2); font-size: var(--fs-14); padding: 4px; }
-.invite-pop { width: min(340px, calc(100vw - 24px)); padding-bottom: 12px; }
+.invite-pop { width: min(340px, calc(100vw - 24px)); padding: 12px; }
+.invite-pop .pop-text { margin-bottom: 10px; line-height: 1.4; }
 .link-field {
-  width: 100%; min-height: 44px; padding: 0 12px; margin-bottom: 10px; border: 1px solid var(--line); border-radius: 10px;
+  width: 100%; min-height: 44px; padding: 0 12px; margin-bottom: 8px; border: 1px solid var(--line); border-radius: var(--r-md);
   background: #F6F5FB; color: var(--ink-2); font-size: var(--fs-13); text-overflow: ellipsis;
 }
 .invite-pop .btn + .btn { margin-top: 4px; }
@@ -275,7 +281,10 @@ a.btn { text-decoration: none; }
 .lbl-stack { display: inline-grid; }
 .lbl-stack > span { grid-area: 1 / 1; white-space: nowrap; }
 .lbl-stack > span[data-off] { visibility: hidden; }
-@media (max-width: 1280px) { .gbtn, .btn-finish { font-size: var(--fs-13); } .gbtn { padding: 0 9px; gap: 6px; } .btn-side:not(.btn-student) { padding: 0; width: var(--hit); } .btn-side:not(.btn-student) .lbl-stack { display: none; } }
+/* Колонки шапки разведены на 24 px: если центральной группе не хватает места и она сдвигается, «Очистить доску» не прилипает к ней */
+@media (min-width: 641px) { .topbar { column-gap: 24px; } }
+/* ≤ 1280: чуть плотнее, но подписи «Очистить доску» и «Завершить урок» остаются; только иконка — на телефоне (≤ 640) */
+@media (max-width: 1280px) { .gbtn, .btn-finish, .btn-side { font-size: var(--fs-13); } .gbtn { padding: 0 9px; gap: 6px; } .btn-side, .btn-finish { padding: 0 14px; } }
 
 /* ---------- Stage & canvas ---------- */
 .stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
@@ -289,7 +298,7 @@ a.btn { text-decoration: none; }
 /* ---------- Floating drawing dock ---------- */
 .dock {
   position: absolute; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: var(--z-panel);
-  display: flex; align-items: center; gap: 4px; padding: 6px; border-radius: 24px;
+  display: flex; align-items: center; gap: 4px; padding: 6px; border-radius: 22px;
 }
 .dock-gap { width: 10px; flex: none; }
 .tool {
@@ -298,9 +307,9 @@ a.btn { text-decoration: none; }
   transition: background-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 .tool .ic { width: 20px; height: 20px; }
-.tool:hover { background: rgba(235, 235, 244, .7); }
+.tool:hover { background: var(--lav); }
 .tool:active { transform: scale(.93); transition-duration: 60ms; }
-.tool[aria-pressed="true"] { background: var(--lav-2); color: var(--ink); }  /* выбранный инструмент: мягкая сиреневая подложка */
+.tool[aria-pressed="true"] { background: var(--lav-2); color: var(--accent-ink); }  /* выбранный инструмент: мягкая сиреневая подложка */
 .tool[disabled] { color: var(--ink-muted); cursor: not-allowed; transform: none; } /* отключено — приглушённый оттенок */
 .tool[disabled]:hover { background: transparent; }
 .color-btn .color-dot { width: 28px; height: 28px; border-radius: 50%; display: block; box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(54, 48, 82, .14); }
@@ -393,7 +402,7 @@ a.btn { text-decoration: none; }
 .place-bar .btn-primary { background: #E4DFFD; }
 .place-bar .btn-primary:hover { background: #D9D2FA; }
 .place-bar .btn-primary:active { background: #CEC5F6; }
-.gbtn[disabled] { opacity: .45; cursor: not-allowed; }
+.gbtn[disabled] { opacity: .4; cursor: not-allowed; }
 
 /* Учащиеся: счётчик справа внизу, список раскрывается вверх */
 .people-dock { position: absolute; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); z-index: var(--z-panel); }
@@ -489,5 +498,28 @@ a.btn { text-decoration: none; }
 .kb-compact .join-when { margin-bottom: 12px; }
 
 /* Иконки удаления — красный акцент (подпись кнопки остаётся основным цветом) */
-[data-action="clear"] .ic, [data-action="erase-mine"] .ic, [data-action="sel-delete"] .ic, .eb-delete .ic, .btn-danger-outline .ic, .kick-btn:hover .ic { color: var(--danger); }
+[data-action="erase-mine"] .ic, [data-action="sel-delete"] .ic, .eb-delete .ic, .btn-danger-outline .ic, .kick-btn:hover .ic { color: var(--danger); }
 .btn:disabled .ic, .gbtn:disabled .ic { color: var(--ink-muted); }
+
+/* Телефон (≤ 640 px): шапка в две строки — заголовок и действия сверху, группа «Задание / Изображение / Пригласить» под ними.
+   Док занимает ширину экрана и прокручивается по горизонтали, счётчик учеников поднимается над ним */
+@media (max-width: 640px) {
+  .topbar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "left right" "center center"; row-gap: 8px; }
+  .tb-left { grid-area: left; } .tb-right { grid-area: right; } .tb-center { grid-area: center; }
+  .btn-side { padding: 0; width: var(--hit); }
+  .btn-side .lbl-stack { display: none; }
+  .dock { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); transform: none; max-width: none;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+  .dock::-webkit-scrollbar { display: none; }
+  .dock .tool { width: var(--hit); height: var(--hit); border-radius: 14px; }
+  .dock { border-radius: 20px; }
+  .people-dock { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 68px); }
+}
+
+/* Подсказка к кнопке без видимой подписи (мышь — с задержкой, клавиатура — сразу при фокусе) */
+.tip { position: fixed; z-index: calc(var(--z-modal) + 1); max-width: 260px; padding: 6px 10px; border-radius: 8px; background: var(--ink); color: #fff;
+  font-size: var(--fs-13); line-height: 1.3; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 12px rgba(54, 48, 82, .18); animation: tip-in 120ms var(--ease-out); }
+.tip[hidden] { display: none; }
+@keyframes tip-in { from { opacity: 0; } to { opacity: 1; } }
+/* Фокус, поставленный интерфейсом после клика мышью (окно подтверждения), без кольца; с клавиатуры кольцо есть */
+.focus-quiet:focus-visible { outline: none; }

@@ -30,7 +30,7 @@ try {
   const lines = await T.eval(`[document.querySelector('.tb-title h1').textContent, document.querySelector('.tb-sub').textContent]`);
   check('Заголовок: «Английский язык · дата, время» и тема «True or False»', /^Английский язык · \d{1,2} [а-я]+, \d\d:\d\d$/.test(lines[0]) && lines[1] === 'True or False', lines.join(' / '));
   check('Центральная группа: Задание → Загрузить/Удалить изображение → Пригласить', await T.eval(`[...document.querySelectorAll('.tb-center .group .gbtn')].map(b=>b.dataset.action).join()==='task,image,invite'`));
-  check('Справа «Очистить доску» и «Завершить урок», меню «⋯» нет, RU/EN нет', await T.eval(`[...document.querySelectorAll('.tb-right > .btn')].map(b=>b.dataset.action).join()==='clear,end' && !document.querySelector('[data-action="menu"]') && !document.querySelector('.lang')`));
+  check('Справа «Очистить доску» (BrushCleaning) и «Завершить урок», RU/EN нет', await T.eval(`[...document.querySelectorAll('.tb-right > .btn')].map(b=>b.dataset.action).join()==='clear,end' && document.querySelector('[data-action="clear"] [data-icon]').dataset.icon==='brushCleaning' && !document.querySelector('[data-action="more"]') && !document.querySelector('.lang')`));
 
   const A = await c.newPage('', { width: 1180, height: 820, scale: 2, touch: true });
   await A.goto(U + '#/demo/student?name=Аня&lang=ru'); await sleep(1200);
@@ -45,8 +45,11 @@ try {
       await setLang(T, l); await sleep(600);
       const g = await geo(T);
       const cc = (g.center.l + g.center.r) / 2, dc = (g.dock.l + g.dock.r) / 2;
-      const ok = Math.abs(cc - g.vw / 2) < 1.5 && Math.abs(dc - g.vw / 2) < 1.5 && g.left.r <= g.center.l && g.right.l >= g.center.r && g.people.l >= g.dock.r && g.right.r <= g.vw;
-      check(`${name} ${l.toUpperCase()}: группа вверху и док на одной оси, боковые блоки не перекрывают`, ok, `центр ${cc.toFixed(1)} / док ${dc.toFixed(1)} / экран ${g.vw / 2}; L ${Math.round(g.left.r)}≤${Math.round(g.center.l)}, R ${Math.round(g.right.l)}≥${Math.round(g.center.r)}`);
+      // На MacBook и iPad альбомной группа строго по оси дока. На iPad книжной подписи «Очистить доску» и «Завершить урок»
+      // важнее точной оси (на касании нет подсказок): правая часть шире, группа может сместиться не больше чем на 48 px
+      const axisTol = w <= 900 ? 48 : 1.5;
+      const ok = Math.abs(cc - g.vw / 2) < axisTol && Math.abs(dc - g.vw / 2) < 1.5 && g.left.r <= g.center.l && g.right.l >= g.center.r + 12 && g.people.l >= g.dock.r && g.right.r <= g.vw;
+      check(`${name} ${l.toUpperCase()}: ${w <= 900 ? 'группа рядом с осью дока (подписи справа сохранены)' : 'группа вверху и док на одной оси'}, боковые блоки не перекрывают`, ok, `центр ${cc.toFixed(1)} / док ${dc.toFixed(1)} / экран ${g.vw / 2}; L ${Math.round(g.left.r)}≤${Math.round(g.center.l)}, R ${Math.round(g.right.l)}≥${Math.round(g.center.r)}`);
     }
   }
   await setLang(T, 'ru'); await T.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 2, mobile: false }); await sleep(700);
