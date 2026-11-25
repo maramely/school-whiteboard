@@ -122,6 +122,10 @@ a.btn { text-decoration: none; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: var(--fs-15); text-decoration: none; color: var(--ink); min-height: var(--hit); }
 .brand-mark { height: 40px; width: auto; aspect-ratio: 1792 / 440; display: block; flex: none; } /* фирменный знак (SVG, вектор): строчные ≈ 8,4 px — читаются как текст интерфейса */
 @media (max-width: 640px) { .brand-mark { height: 36px; } }
+/* Логотип-ссылка: при наведении знак чуть светлеет по тону — видно, что он кликабельный. */
+a.brand { cursor: pointer; }
+a.brand .brand-mark { transition: opacity var(--dur-base) var(--ease-out); }
+@media (hover: hover) { a.brand:hover .brand-mark { opacity: .78; } }
 .page-main { flex: 1; display: flex; justify-content: center; padding: 16px 16px 40px; }
 .card { width: 100%; max-width: 540px; background: #fff; border-radius: var(--r-xl); box-shadow: 0 0 0 1px var(--glass-edge), var(--shadow-2); padding: 32px; align-self: flex-start; }
 .card h1 { font-size: var(--fs-30); line-height: 1.12; margin: 0 0 8px; font-weight: 700; letter-spacing: -.022em; text-wrap: balance; }
