@@ -662,6 +662,47 @@
     return { hide };
   })();
 
+  // Центральная группа верхней панели: одна лавандовая плашка скользит за курсором между кнопками
+  // и подстраивается под ширину кнопки. Только мышь/перо; касания не подсвечивают.
+  const Slide = (() => {
+    let cur = null;
+    const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { if (cur && cur.isConnected) place(cur, true); }) : null;
+    const pillOf = (g, make) => {
+      let p = g.querySelector(':scope > .group-hover');
+      if (!p && make) { p = document.createElement('span'); p.className = 'group-hover'; p.setAttribute('aria-hidden', 'true'); g.prepend(p); }
+      return p;
+    };
+    function place(btn, animate) {
+      const g = btn.closest('.group'), p = pillOf(g, true), gr = g.getBoundingClientRect(), br = btn.getBoundingClientRect();
+      if (!animate) p.classList.add('jump');
+      p.style.setProperty('--x', `${(br.left - gr.left + 4).toFixed(2)}px`);
+      p.style.setProperty('--w', `${Math.max(0, br.width - 8).toFixed(2)}px`);
+      if (!animate) { p.getBoundingClientRect(); p.classList.remove('jump'); }
+      p.classList.add('on');
+    }
+    function enter(btn) {
+      const p = pillOf(btn.closest('.group'), true), shown = p.classList.contains('on');
+      if (ro && cur) ro.unobserve(cur);
+      cur = btn; if (ro) ro.observe(btn);
+      place(btn, shown); // первое наведение — плашка появляется на месте, дальше — скользит
+    }
+    function leave(g) { const p = g && pillOf(g, false); if (p) p.classList.remove('on'); if (ro && cur) ro.unobserve(cur); cur = null; }
+    const groupOf = (n) => n instanceof Element ? n.closest('.tb-center .group') : null;
+    document.addEventListener('pointerover', (e) => {
+      if (e.pointerType === 'touch') return;
+      const g = groupOf(e.target); if (!g) return;
+      if (e.target.closest('.popover')) { leave(g); return; }
+      const b = e.target.closest('.gbtn'); if (b && b !== cur) enter(b);
+    });
+    document.addEventListener('pointerout', (e) => {
+      if (e.pointerType === 'touch') return;
+      const g = groupOf(e.target); if (g && !(e.relatedTarget instanceof Node && g.contains(e.relatedTarget))) leave(g);
+    });
+    // после перерисовки панели: если курсор уже над кнопкой группы — плашка сразу на ней
+    const sync = () => { cur = null; const b = document.querySelector('.tb-center .group .gbtn:hover'); if (b && matchMedia('(hover: hover)').matches) enter(b); };
+    return { sync };
+  })();
+
   let modalClose = null;
   function openModal({ title, text, body = '', actions = [] }) {
     closeModal();
@@ -1159,7 +1200,7 @@
       </main>
       <input type="file" accept="image/png,image/jpeg" hidden id="file">
     </div>`;
-    Tip.hide();
+    Tip.hide(); Slide.sync();
     app.querySelectorAll('.topbar button[title], .topbar a[title], .dock [title], .people-dock [title]').forEach((b) => { if (!b.dataset.tip) b.dataset.tip = b.title; b.removeAttribute('title'); });
 
     const stage = $('.stage', app), frame = $('.frame', app), overlay = $('.overlay', app);

@@ -224,6 +224,20 @@ a.brand .brand-mark { transition: opacity var(--dur-base) var(--ease-out); }
 .gbtn:hover { background: var(--lav); }
 .gbtn:active { transform: scale(.97); transition-duration: 60ms; }
 .gbtn[aria-expanded="true"] { background: var(--lav-2); }
+/* Центральная группа: подсветка — внутренняя плашка с отступом 4 px от краёв контейнера (радиус 14 − 4 = 10).
+   При наведении мышью одна общая плашка скользит между кнопками (Slide в app.js); кнопки сами остаются 44 px. */
+.tb-center .group { position: relative; }
+.tb-center .group .gbtn { z-index: 0; }
+.tb-center .group .gbtn[aria-expanded="true"] { background: transparent; }
+.tb-center .group .gbtn[aria-expanded="true"]::before { content: ""; position: absolute; inset: 4px; z-index: -1; border-radius: 10px; background: var(--lav-2); }
+@media (hover: hover) { .tb-center .group .gbtn:hover { background: transparent; } }
+.group-hover {
+  position: absolute; top: 4px; bottom: 4px; left: 0; width: var(--w, 0); transform: translateX(var(--x, 0)); border-radius: 10px;
+  background: var(--lav); opacity: 0; pointer-events: none;
+  transition: transform 220ms var(--ease-out), width 220ms var(--ease-out), opacity 160ms var(--ease-out);
+}
+.group-hover.on { opacity: 1; }
+.group-hover.jump { transition: opacity 160ms var(--ease-out); }
 .btn-side, .btn-finish { margin-left: 0; min-height: var(--hit); border-radius: 14px; background: #fff; font-weight: 600; font-size: var(--fs-14); box-shadow: 0 0 0 1px var(--line), var(--shadow-1); }
 .btn-side:hover, .btn-finish:hover { background: var(--lav); }
 /* «Завершить урок» — главное действие учителя: светло-лавандовая заливка, тёмный полужирный текст (10,6:1) */
