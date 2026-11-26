@@ -12,7 +12,7 @@ const X = {
 const view = (P) => P.eval(`(()=>{const c=document.querySelector('.join-card'); if(!c) return null; const kids=[...c.children].map(e=>e.matches('.shiba')?'shiba':e.tagName==='H1'?'h1':e.matches('.join-when')?'when':e.tagName==='FORM'?'form':e.className);
   const s=c.querySelector('.shiba').getBoundingClientRect(), i=document.querySelector('#f-name');
   return {kids:kids.join(','), h1:c.querySelector('h1').textContent, when:c.querySelector('.join-when').textContent, label:c.querySelector('label[for="f-name"]').textContent, ph:i.placeholder, btn:c.querySelector('[type="submit"]').textContent.trim(),
-    lang:!!document.querySelector('.lang,[data-lang]'), help:!!c.querySelector('.help'), text:document.body.innerText, shiba:[Math.round(s.width),Math.round(s.height)], shibaCls:c.querySelector('.shiba').className}})()`);
+    lang:[...document.querySelectorAll('.page-top .lang [data-lang]')].map(b=>b.textContent+(b.getAttribute('aria-pressed')==='true'?'*':'')).join('|'), help:!!c.querySelector('.help'), text:document.body.innerText, shiba:[Math.round(s.width),Math.round(s.height)], shibaCls:c.querySelector('.shiba').className}})()`);
 const focusStyle = (P) => P.eval(`(()=>{const i=document.querySelector('#f-name'),s=getComputedStyle(i);return {focused:document.activeElement===i, bw:s.borderTopWidth, bc:s.borderTopColor, shadow:s.boxShadow, outline:s.outlineStyle}})()`);
 const ACC = 'rgb(117, 99, 202)';
 
@@ -36,7 +36,7 @@ try {
     check(`${up}: заголовок «${x.h1}»`, v.h1 === x.h1, v.h1);
     check(`${up}: дата и время создания отдельной строкой — «${expDate}»`, v.when === expDate && x.date.test(v.when), v.when);
     check(`${up}: подпись «${x.label}», плейсхолдер «${x.ph}», кнопка «${x.btn}»`, v.label === x.label && v.ph === x.ph && v.btn === x.btn, `${v.label} / ${v.ph} / ${v.btn}`);
-    check(`${up}: нет RU/EN, «Доска · …», «Вас пригласили на доску» и подсказки под полем`, !v.lang && !v.help && !/Доска ·|Вас пригласили на доску|You’re invited to the board|Имя увидят|will see this name/.test(v.text));
+    check(`${up}: справа вверху EN | RU (активен ${up}), нет «Доска · …», «Вас пригласили на доску» и подсказки под полем`, v.lang === (up === 'EN' ? 'EN*|RU' : 'EN|RU*') && !v.help && !/Доска ·|Вас пригласили на доску|You’re invited to the board|Имя увидят|will see this name/.test(v.text));
     check(`${up}: компактная шиба над заголовком`, v.shiba[0] === 88 && v.shiba[1] === 88, v.shiba.join('×'));
     if (l === 'ru') {
       for (let i = 0; i < 24 && !(await S.eval(`document.querySelector('.shiba').classList.contains('is-ended')`)); i++) await sleep(250);

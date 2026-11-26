@@ -102,15 +102,18 @@ a.btn { text-decoration: none; }
 .btn-lg { min-height: 52px; font-size: var(--fs-17); padding: 0 24px; border-radius: 14px; }
 .btn-block { width: 100%; }
 
-/* ---------- Language switch (segmented) ---------- */
-.lang { display: inline-flex; gap: 2px; padding: 0; }
+/* ---------- Language switch: текстовый EN | RU ---------- */
+.lang { display: inline-flex; align-items: center; }
 .lang button {
-  min-width: var(--hit); min-height: var(--hit); border: 0; border-radius: 11px; background: transparent;
-  font-size: var(--fs-13); font-weight: 400; color: var(--ink-2); cursor: pointer; letter-spacing: .02em;
-  transition: background-color var(--dur-fast), color var(--dur-fast);
+  min-width: var(--hit); min-height: var(--hit); padding: 0 6px; border: 0; border-radius: var(--r-md); background: transparent;
+  font-size: var(--fs-14); font-weight: 500; letter-spacing: .04em; color: var(--ink-2); cursor: pointer;
+  transition: color var(--dur-base) var(--ease-out);
 }
-.lang button:hover { background: var(--lav); }
-.lang button[aria-pressed="true"] { background: var(--lav-2); color: var(--ink); font-weight: 600; }
+.lang button:hover { color: var(--accent-ink); }
+.lang button[aria-pressed="true"] { color: var(--ink); font-weight: 700; cursor: default; }
+.lang-sep { width: 1px; height: 14px; background: var(--ink-muted); flex: none; }
+/* оптическое выравнивание: край текста «RU» на том же расстоянии от края, что и логотип слева (область нажатия 44 px сохраняется) */
+.page-top .lang { margin-right: -11px; }
 
 /* ---------- Simple pages (start, join, result) ---------- */
 .page {
@@ -118,7 +121,6 @@ a.btn { text-decoration: none; }
   background: var(--bg);
 }
 .page-top { display: flex; align-items: center; justify-content: space-between; padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left)); }
-.page-top .lang { padding: 3px; border-radius: 14px; background: var(--glass); box-shadow: 0 0 0 1px var(--glass-edge); }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: var(--fs-15); text-decoration: none; color: var(--ink); min-height: var(--hit); }
 .brand-mark { height: 40px; width: auto; aspect-ratio: 1792 / 440; display: block; flex: none; } /* фирменный знак (SVG, вектор): строчные ≈ 8,4 px — читаются как текст интерфейса */
 @media (max-width: 640px) { .brand-mark { height: 36px; } }

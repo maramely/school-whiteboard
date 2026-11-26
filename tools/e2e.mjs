@@ -95,7 +95,7 @@ try {
     const ru = await T.eval(pos); await T.eval(`(()=>{location.hash=location.hash.split('?')[0]+'?lang=en'; return true})()`); await sleep(600);
     const en = await T.eval(pos); const lbl = await T.eval(`document.querySelector('[data-action="end"]').innerText.trim()`);
     check('Язык платформы RU/EN не сдвигает меню', ru === en, ru + ' / ' + en);
-    check('EN: «End lesson»', lbl === 'End lesson', lbl);
+    check('EN: «Finish lesson»', lbl === 'Finish lesson', lbl);
     await T.eval(`(()=>{location.hash=location.hash.split('?')[0]+'?lang=ru'; return true})()`); await sleep(600); }
 
   // Геометрия: док не перекрывает лист

@@ -20,7 +20,7 @@ try {
   await T.goto(U + '#/'); await T.eval(`localStorage.clear(); sessionStorage.clear(); true`);
   // Доска без контекста урока: только дата и время
   await T.goto(U + '#/?lang=ru'); await sleep(400);
-  check('Стартовая учителя: без полей предмета/темы и без RU/EN', await T.eval(`!document.querySelector('.lang') && document.querySelectorAll('#create-form input, #create-form textarea').length===1`));
+  check('Стартовая учителя: без полей предмета/темы, справа вверху EN | RU', await T.eval(`[...document.querySelectorAll('.page-top .lang [data-lang]')].map(b=>b.textContent).join('|')==='EN|RU' && document.querySelectorAll('#create-form input, #create-form textarea').length===1`));
   await T.eval(`document.querySelector('#create-form').requestSubmit(); true`); await sleep(900);
   const plain = await T.eval(`[document.querySelector('.tb-title h1').textContent, !!document.querySelector('.tb-sub')]`);
   check('Без контекста урока — только дата и время, без слов «Доска» и «Учитель»', /^\d{1,2} [а-я]+, \d\d:\d\d$/.test(plain[0]) && !plain[1] && !(await T.eval(`/Доска|Учитель/.test(document.querySelector('.tb-left').innerText)`)), plain[0]);

@@ -173,9 +173,9 @@
       shareTitle: 'Result saved', shareText: 'Snapshot of the board at {time}. New marks won’t be added to it.',
       shareDemo: 'The demo link opens in this browser.',
       downloadPng: 'Download PNG', pngSaved: 'Downloaded {name}',
-      endLesson: 'End lesson', endTitle: 'End session?',
+      endLesson: 'Finish lesson', endTitle: 'Finish the lesson?',
       endText: 'Students can no longer draw and the invite will stop opening the board. You’ll see the final sheet and can download a PNG.',
-      endConfirm: 'End session', cancel: 'Cancel', remove: 'Remove', clearConfirm: 'Clear',
+      endConfirm: 'Finish lesson', cancel: 'Cancel', remove: 'Remove', clearConfirm: 'Clear',
       endedBanner: 'Lesson ended', newBoard: 'New board',
       thanksTitle: 'Thank you! The lesson has ended', thanksText: 'You can download the final board.',
       downloadFinal: 'Download final board',
@@ -203,12 +203,25 @@
       teacherStart: 'Teacher start page',
     },
   };
-  // Язык интерфейса: ?lang= от платформы, с которой пришёл пользователь → язык этой вкладки → настройки демо
-  // (localStorage wb:demo:lang; в прототипе его задаёт последний ?lang=). Переключателя RU/EN у ученика нет.
-  const demoLang = () => { try { return localStorage.getItem('wb:demo:lang'); } catch (e) { return null; } };
-  let lang = sessionStorage.getItem('wb:lang') || demoLang() || 'ru';
+  // Язык интерфейса. У учителя и ученика свой выбор (переключатель EN | RU на экранах с логотипом):
+  // вкладка (sessionStorage) → выбор этой роли в браузере (localStorage wb:lang:teacher / wb:lang:student) →
+  // язык платформы/демо (wb:demo:lang — последний ?lang= из ссылки) → русский.
+  // Ссылка с ?lang=en (в адресе или после #) открывает нужный язык напрямую, например из портфолио.
+  const tabLang = (k, v) => { try { if (v === undefined) return sessionStorage.getItem(k) || null; sessionStorage.setItem(k, v); } catch (e) { return null; } return null; };
+  const savedPref = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || null; localStorage.setItem(k, v); } catch (e) { return null; } return null; };
+  const roleOf = () => (/^#\/(join\/|demo\/student)/.test(location.hash) ? 'student' : 'teacher');
+  const normLang = (l) => (l === 'en' ? 'en' : 'ru');
+  const savedLang = (role = roleOf()) => normLang(tabLang('wb:lang:' + role) || savedPref('wb:lang:' + role) || savedPref('wb:demo:lang') || 'ru');
+  let lang = savedLang();
+  // ?lang= из ссылки: язык платформы — запоминается и для новых вкладок демо, в том числе ученика по приглашению
+  function setLang(l, { fromLink = false } = {}) {
+    lang = normLang(l); const role = roleOf();
+    tabLang('wb:lang:' + role, lang); savedPref('wb:lang:' + role, lang);
+    if (fromLink) savedPref('wb:demo:lang', lang);
+    document.documentElement.lang = lang;
+  }
+  { const q = new URLSearchParams(location.search); if (q.get('lang')) { setLang(q.get('lang'), { fromLink: true }); q.delete('lang'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); } }
   document.documentElement.lang = lang;
-  function setLang(l) { lang = l === 'en' ? 'en' : 'ru'; sessionStorage.setItem('wb:lang', lang); try { localStorage.setItem('wb:demo:lang', lang); } catch (e) { /* noop */ } document.documentElement.lang = lang; }
   function t(k, v) {
     let s = I18N[lang][k];
     if (s === undefined) s = I18N.ru[k];
@@ -746,13 +759,19 @@
     inp.addEventListener('focus', () => inp.select());
     back.querySelector('[data-copy]').addEventListener('click', async () => { const ok = await copyText(url); toast(ok ? t('copied') : t('copyFailed'), ok ? 'copy' : 'info'); if (!ok) inp.select(); });
   }
+  // Текстовый переключатель EN | RU: активный язык — основной цвет и полужирный, второй — вторичный цвет
   function langSwitch() {
-    return `<div class="lang" role="group" aria-label="${esc(t('lang'))}">
-      <button type="button" data-lang="ru" aria-pressed="${lang === 'ru'}">RU</button>
-      <button type="button" data-lang="en" aria-pressed="${lang === 'en'}">EN</button></div>`;
+    const b = (l, name) => `<button type="button" data-lang="${l}" lang="${l}" aria-label="${name}" aria-pressed="${lang === l}">${l.toUpperCase()}</button>`;
+    return `<div class="lang" role="group" aria-label="${esc(t('lang'))}">${b('en', 'English')}<span class="lang-sep" aria-hidden="true"></span>${b('ru', 'Русский')}</div>`;
   }
-  // Один общий обработчик переключения языка на весь документ (работает на любом экране)
-  document.addEventListener('click', (e) => { const b = e.target.closest('[data-lang]'); if (!b || b.dataset.lang === lang) return; setLang(b.dataset.lang); route(); });
+  // Один общий обработчик на весь документ: экран перерисовывается на новом языке, введённый текст и фокус сохраняются
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-lang]'); if (!b || b.dataset.lang === lang) return;
+    const typed = [...document.querySelectorAll('#app input[id], #app textarea[id]')].filter((x) => !x.readOnly && x.type !== 'file' && x.type !== 'hidden').map((x) => [x.id, x.value]);
+    setLang(b.dataset.lang); route();
+    typed.forEach(([id, v]) => { const x = document.getElementById(id); if (x && !x.value && v) x.value = v; });
+    const nb = document.querySelector(`.lang [data-lang="${lang}"]`); if (nb) softFocus(nb);
+  });
   function bindLang() { /* обработчик общий, см. выше */ }
 
   /* ---------------- Router ---------------- */
@@ -763,7 +782,10 @@
     const raw = location.hash.slice(1) || '/';
     const [path, qs] = raw.split('?');
     const q = new URLSearchParams(qs || '');
-    if (q.get('lang')) setLang(q.get('lang'));
+    if (q.get('lang')) { // язык из ссылки применяется один раз и убирается из адреса, дальше работает переключатель
+      setLang(q.get('lang'), { fromLink: true }); q.delete('lang');
+      history.replaceState(null, '', location.pathname + location.search + '#' + path + (q.toString() ? '?' + q : ''));
+    } else { lang = savedLang(); document.documentElement.lang = lang; }
     const parts = path.split('/').filter(Boolean);
     const app = $('#app');
     purgeExpired();
@@ -777,8 +799,8 @@
   // Автоудаление проверяется раз в 15 секунд в каждой открытой вкладке
   setInterval(() => { const gone = purgeExpired(); if (gone.some((id) => location.hash.includes(id))) route(); }, 15000);
 
-  // Переключателя RU/EN на экранах нет: язык приходит из платформы / настроек демо (langSw оставлен для отладки)
-  function pageShell(inner, { brandLink = true, langSw = false, center = false } = {}) {
+  // Экраны с логотипом: логотип слева, переключатель EN | RU справа на одной оси
+  function pageShell(inner, { brandLink = true, langSw = true, center = false } = {}) {
     return `<div class="page${center ? ' is-centered' : ''}"><header class="page-top">
       ${brandLink ? `<a class="brand" href="#/" aria-label="${esc(t('home'))}">` : '<div class="brand">'}<img class="brand-mark" src="brand-logo.svg" width="163" height="40" alt="${esc(t('appName'))}" decoding="async">${brandLink ? '</a>' : '</div>'}
       ${langSw ? langSwitch() : ''}</header><main class="page-main" id="main">${inner}</main></div>`;
@@ -853,7 +875,7 @@
           <span class="help" id="f-task-help">${esc(t('taskHelp'))}</span></div>
         <button class="btn btn-primary btn-lg btn-block" type="submit">${icon('pencil')}${esc(t('create'))}</button>
       </form>
-    </section>`, { langSw: false });
+    </section>`);
     bindLang(app);
     $('#create-form').addEventListener('submit', (e) => { e.preventDefault(); createBoard($('#f-task').value.trim()); });
     return ShibaMascot.mount($('.shiba', app)); // при уходе с экрана видео останавливается; при возврате — заново
@@ -913,7 +935,7 @@
     return true;
   }
   async function demoRoute(app, kind, q) {
-    app.innerHTML = pageShell(`<section class="card center-card"><p class="lead" style="margin:0">${esc(t('preparing'))}</p></section>`, { langSw: false });
+    app.innerHTML = pageShell(`<section class="card center-card"><p class="lead" style="margin:0">${esc(t('preparing'))}</p></section>`);
     const ok = await seedDemo(q.get('reset') === '1');
     if (!ok) return;
     if (kind === 'student') {
@@ -979,7 +1001,7 @@
           <input class="input" id="f-name" name="name" autocomplete="given-name" autocapitalize="words" enterkeyhint="go" placeholder="${esc(t('namePh'))}" maxlength="30" aria-describedby="f-name-err">
           <span class="error-text" id="f-name-err" role="alert"></span></div>
         <button class="btn btn-primary btn-lg btn-block" type="submit">${esc(t('join'))}</button>
-      </form></section>`, { brandLink: false, langSw: false });
+      </form></section>`, { brandLink: false });
     const inp = $('#f-name'), submit = $('#join [type="submit"]'), page = $('.page', app);
     setTimeout(() => inp.focus({ preventScroll: true }), 50);
     $('#join').addEventListener('submit', (e) => {
@@ -1055,7 +1077,7 @@
           <button class="btn btn-danger-outline" id="del">${icon('trash')}${esc(t('deleteBoard'))}</button>
           <button class="btn btn-secondary" id="create">${icon('pencil')}${esc(t('newBoard'))}</button>
         </div>
-      </div></section>`, { langSw: false });
+      </div></section>`);
     bindLang(app);
     const redraw = drawThumb($('.thumb'), scene);
     const ro = new ResizeObserver(() => redraw()); ro.observe($('.result-preview'));
